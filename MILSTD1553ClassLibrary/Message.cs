@@ -11,7 +11,7 @@ namespace MILSTD1553ClassLibrary
         private int CommandWord { get; set; }
         private int DataWordArrayLength { get; set; }
         private int[] DataWordArray { get; set; }
-        private float messageDuration;
+        private int messageDuration;
 
         //Constructor for BC-RT (RT receives) message
         public Message(int commandWord, int[] dataWordArray)
@@ -32,9 +32,9 @@ namespace MILSTD1553ClassLibrary
         //Method: getMessageDuration
             //returns in millisecond
             //word duration: 16 ms (16 bit x 1 ms)
-        public float getMessageDuration()
+        public int getMessageDuration()
         {
-            messageDuration = 0.001F * (1 + DataWordArrayLength);
+            messageDuration = 1 * (1 + DataWordArrayLength);
             return messageDuration;
         }
 
