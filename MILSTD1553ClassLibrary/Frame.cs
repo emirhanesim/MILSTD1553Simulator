@@ -9,7 +9,7 @@ namespace MILSTD1553ClassLibrary
     public class Frame
     {
         
-        private int FrameTime { get; set; } //in millisecond
+        private int FrameTime { get; } //in millisecond
         private List<Message> messages;
 
         private int messageDuration;

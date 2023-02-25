@@ -11,14 +11,7 @@ namespace deneme
     {
         static void Main(string[] args)
         {
-            int commandWord = 123;
-            int[] dataWord = { 1, 1, 0, 1, 0, 1 };
-            int[] message;
-            float messageDuration;
-            Message msg = new Message(commandWord, dataWord);
-            message = msg.returnMessage();
-            messageDuration = msg.getMessageDuration();
-            while (true) ;
+            
         }
     }
 }
