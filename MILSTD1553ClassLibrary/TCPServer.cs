@@ -1,21 +1,16 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net;
 using System.Net.Sockets;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 
 namespace MILSTD1553ClassLibrary
 {
-    class TCPServer
+    public class TCPServer
     {
         private TcpClient client;
         private TcpListener listener;
         private int port = 5000;
         public int newRead = 0;
-        public byte[] receivedData = new byte[2];
         private int receivedDataLength;
         private NetworkStream stream;
 
@@ -41,9 +36,7 @@ namespace MILSTD1553ClassLibrary
                 listener = new TcpListener(IPAddress.Any, port);
                 listener.Start();
                 client = listener.AcceptTcpClient();
-                Thread t = new Thread(receive);
-                t.IsBackground = true;
-                t.Start();
+                stream = client.GetStream();
             }
             catch (Exception ex)
             {
@@ -51,32 +44,25 @@ namespace MILSTD1553ClassLibrary
             }
         }
 
-        private void receive()
+        public int[] receive()
         {
-            try
-            {
-                stream = client.GetStream();
-                while (client.Connected)
-                {
-                    newRead = 0;
-                    receivedDataLength = stream.Read(receivedData, 0, 2);
-                    newRead = 1;
-                    while (newRead == 1); //change newRead to zero after getting your data
-                }
-            }
-            catch ( Exception ex)
-            {
-                Console.WriteLine(ex);
-            }
+            byte[] receivedData = new byte[256];
+            while (stream.DataAvailable == false) ;
+            receivedDataLength = stream.Read(receivedData, 0, 256); //one message is maximum of 66 bytes = 33 words
+            int[] returnData = new int[receivedDataLength / 2];
+            byte[] receivedDataByte = new byte[receivedDataLength];
+            Array.Copy(receivedData, 0, receivedDataByte, 0, receivedDataLength);
+            returnData = byteToInt(receivedDataByte);
+            return returnData;
         }
 
-        public void send(int messageWord)
+        public void send(int[] message)
         {
             try
             {
                 if(client.Connected)
                 {
-                    byte[] messageByteArr = intToByte(messageWord);
+                    byte[] messageByteArr = intToByte(message);
                     stream.Write(messageByteArr, 0, messageByteArr.Length);
                     stream.Flush();
                 }
@@ -87,12 +73,41 @@ namespace MILSTD1553ClassLibrary
             }
         }
 
-        private byte[] intToByte(int value)
+        private int[] byteToInt(byte[] valueArr)
         {
-            byte[] data = new byte[2];
-            data[0] = (byte)value;
-            data[1] = (byte)(value >> 8);
-            return data;
+            
+            int valueArrLength = valueArr.Length;
+            
+            if ((valueArrLength % 2) == 0)
+            {
+                int[] dataReturn = new int[valueArrLength / 2];
+                int k = 0;
+                for (int i = 0; i < valueArrLength-1; i+=2)
+                {
+                    dataReturn[k] = valueArr[i+1] + (valueArr[i] << 8);
+                    k++;
+                }
+                return dataReturn;
+            }
+
+            else
+            {
+                throw new ArgumentException("provided byte array length is not multiple of 2");
+            }
+
+        }
+
+        private byte[] intToByte(int[] valueArr)
+        {
+            int valueArrLength = valueArr.Length;
+            int returnArrLength = valueArrLength * 2;
+            byte[] dataReturn = new byte[returnArrLength];
+            for(int i = 0; i < valueArrLength; i++)
+            {
+                dataReturn[2*i] = (byte)(valueArr[i] >> 8);
+                dataReturn[2*i + 1] = (byte)valueArr[i];
+            }
+            return dataReturn;
         }
     }
 }
