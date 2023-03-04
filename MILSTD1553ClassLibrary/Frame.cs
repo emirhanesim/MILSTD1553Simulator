@@ -19,16 +19,25 @@ namespace MILSTD1553ClassLibrary
         {
             this.FrameTime = frameTime;
         }
-        public void addMessage(Message message)
+        public bool addMessage(Message message)
         {
             if((totalMessageDuration + message.getMessageDuration()) >= FrameTime)
             {
-                throw new Exception("the messages exceed the frame time. ");
+                return false;
             }
             else
             {
                 messages.Add(message);
                 totalMessageDuration += message.getMessageDuration();
+                return true;
+            }
+        }
+
+        public void run(TCPServer server)
+        {
+            while (true)
+            {
+                 
             }
         }
 

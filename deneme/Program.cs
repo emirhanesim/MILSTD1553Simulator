@@ -29,13 +29,17 @@ namespace deneme
             TCPServer server = (TCPServer)o;
             int[] data1 = { 1 };
             int[] data2 = new int[1];
-            
-            server.send(data1);
-            data2 = server.receive();
-            if (data2[0] == data1[0])
+            while (true)
             {
-                Console.WriteLine("BC sent and RT echo");
+                server.send(data1);
+                data2 = server.receive();
+                if (data2[0] == data1[0])
+                {
+                    Console.WriteLine("BC sent and RT echo");
+                }
+                Thread.Sleep(1000);
             }
+            
 
             
         }
@@ -43,12 +47,15 @@ namespace deneme
         {
             Console.WriteLine("RT thread is started");
             TCPClient client = (TCPClient)o;
-            
-            int[] dataReceived = client.receive();
-            if (dataReceived[0] == 1)
+            while (true)
             {
-                client.send(dataReceived);
+                int[] dataReceived = client.receive();
+                if (dataReceived[0] == 1)
+                {
+                    client.send(dataReceived);
+                }
             }
+            
             
         }
     }
