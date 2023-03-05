@@ -8,50 +8,52 @@ namespace MILSTD1553ClassLibrary
 {
     public class Message
     {
-        private int CommandWord { get; set; }
-        private int DataWordArrayLength { get; set; }
-        private int[] DataWordArray { get; set; }
+        private CommandWord commandWord;
+        private int[] messageBuffer; //holds the message as integer array
         private int messageDuration;
+        
+        
+        
 
-        //Constructor for BC-RT (RT receives) message
-        public Message(int commandWord, int[] dataWordArray)
+        public CommandWord CommandWord { get => commandWord; }
+        public int[] MessageBuffer { get => messageBuffer; }
+        public int MessageDuration { get => messageDuration; }
+
+        public Message(CommandWord commandWord) //constructs message by getting data from buffer
         {
-            this.CommandWord = commandWord;
-            this.DataWordArray = dataWordArray;
-            this.DataWordArrayLength = dataWordArray.Length;
+            
+            this.commandWord = commandWord;
+            messageBuffer = writeMessageBuffer(commandWord);
+            messageDuration = getMessageDuration(messageBuffer);
         }
 
-        //Constructor for RT-BC (RT transmits) message
-        public Message(int commandWord) 
-        {
-            this.CommandWord = commandWord;
-            this.DataWordArray = null;
-            this.DataWordArrayLength = 0;
-        }
 
         //Method: getMessageDuration
             //returns in millisecond
             //word duration: 16 ms (16 bit x 1 ms)
-        public int getMessageDuration()
+        private int getMessageDuration(int[] messageBuffer)
         {
-            messageDuration = 1 * (1 + DataWordArrayLength);
-            return messageDuration;
+            int messageDurationReturn = 1 * (messageBuffer.Length);
+            return messageDurationReturn;
+        }
+        private int[] writeMessageBuffer(CommandWord commandWord)
+        {
+            if (commandWord.TrBit == 0)
+            {
+                int[] dataReturn = new int[commandWord.WordCount + 1]; //BC-RT message. Holda cmd word and data words
+                dataReturn[0] = commandWord.CommandWordInt;
+                int[] buffer = Buffer32.buffer;
+                Array.Copy(buffer, 0, dataReturn, 1, commandWord.WordCount); //copy the buffer with length of word count
+                return dataReturn;
+            }
+            else 
+            {
+                int[] dataReturn = new int[1];
+                dataReturn[0] = commandWord.CommandWordInt;
+                return dataReturn;
+            }
         }
 
         
-        public int[] returnMessage()
-        {
-            int[] messageArray = new int[1 + DataWordArrayLength];
-            if (DataWordArray != null)
-            {
-                messageArray[0] = CommandWord;
-                DataWordArray.CopyTo(messageArray, 1);
-            }
-            else
-            {
-                messageArray[0] = CommandWord;
-            }
-            return messageArray;
-        }
     }
 }

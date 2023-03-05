@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace MILSTD1553ClassLibrary
 {
-    public class Frame
+    public class Frame //add messages, remove messages, run, 
     {
         
         private int FrameTime { get; } //in millisecond
@@ -15,20 +15,20 @@ namespace MILSTD1553ClassLibrary
         private int messageDuration;
         private int totalMessageDuration = 0;
 
-        public Frame(int frameTime)
+        public Frame(int frameTime) //takes message list
         {
             this.FrameTime = frameTime;
         }
         public bool addMessage(Message message)
         {
-            if((totalMessageDuration + message.getMessageDuration()) >= FrameTime)
+            if((totalMessageDuration + message.MessageDuration) >= FrameTime)
             {
                 return false;
             }
             else
             {
                 messages.Add(message);
-                totalMessageDuration += message.getMessageDuration();
+                totalMessageDuration += message.MessageDuration;
                 return true;
             }
         }
